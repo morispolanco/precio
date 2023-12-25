@@ -1,35 +1,47 @@
 import streamlit as st
 import requests
 
-def obtener_precio_mas_bajo_producto(producto):
-    # Utiliza una API ficticia para obtener datos de productos y precios
-    url = f"https://api-ejemplo-precios.com/precio/{producto}"
-    print(f"Solicitando datos a la URL: {url}")
-    
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        data = response.json()
-        min_price = min(data['precios'])
-        return min_price
-    else:
-        print(f"Error en la solicitud: {response.status_code}, {response.text}")
-        st.error(f"No se pudieron obtener datos para el producto {producto}")
-        return None
+# Función para obtener el precio más bajo de un producto en Guatemala
+def get_lowest_price(product_name):
+  # URL de la API de Bard
+  url = "https://api.bard.ai/v1/query"
 
-def main():
-    st.title("Precio más bajo de un producto en Guatemala")
-    
-    # Sidebar
-    st.sidebar.header("Configuración")
-    producto = st.sidebar.text_input("Ingrese el nombre del producto", "EjemploProducto")
-    
-    # Obtener el precio más bajo
-    min_price = obtener_precio_mas_bajo_producto(producto)
-    
-    # Mostrar resultados
-    if min_price is not None:
-        st.write(f"El precio más bajo para {producto} es: ${min_price:.2f}")
+  # Parámetros de la consulta
+  params = {
+    "query": f"precio mas bajo en guatemala de un {product_name}",
+    "language": "es",
+    "model": "PaLM2"
+  }
 
-if __name__ == "__main__":
-    main()
+  # Enviar la solicitud a la API
+  try:
+    response = requests.get(url, params=params, verify=True)
+  except requests.exceptions.SSLError as e:
+    st.error(f"Error de conexión SSL: {e}")
+    return None
+
+  # Extraer el precio más bajo de la respuesta
+  if response.status_code == 200:
+    data = response.json()
+    lowest_price = data["result"]["price"]
+  else:
+    lowest_price = None
+
+  return lowest_price
+
+# Interfaz de usuario
+st.title("Precio más bajo en Guatemala")
+
+# Campo de texto para ingresar el nombre del producto
+product_name = st.text_input("Nombre del producto")
+
+# Botón para obtener el precio más bajo
+if st.button("Obtener precio"):
+  # Obtener el precio más bajo
+  lowest_price = get_lowest_price(product_name)
+
+  # Mostrar el precio más bajo
+  if lowest_price is not None:
+    st.success(f"El precio más bajo es de Q{lowest_price}")
+  else:
+    st.error("No se pudo encontrar el precio más bajo")
