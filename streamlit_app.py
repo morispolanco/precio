@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-from requests.packages.urllib3.util.ssl_ import create_urllib3_context
+from urllib3.util.ssl_ import create_urllib3_context
 
 # Función para obtener el precio más bajo de un producto en Guatemala
 def get_lowest_price(product_name):
@@ -9,9 +9,10 @@ def get_lowest_price(product_name):
 
     # Configurar la versión del protocolo SSL/TLS
     context = create_urllib3_context()
-    context.options |= getattr(requests.packages.urllib3.contrib.pyopenssl, 'SSL_OP_NO_TLSv1_3', 0)
-    context.options |= getattr(requests.packages.urllib3.contrib.pyopenssl, 'SSL_OP_NO_TLSv1_2', 0)
-    context.options |= getattr(requests.packages.urllib3.contrib.pyopenssl, 'SSL_OP_NO_TLSv1_1', 0)
+    context.set_ciphers('DEFAULT@SECLEVEL=1')  # Ajuste para SSL/TLS modernos
+    context.options |= getattr(context, 'OP_NO_TLSv1_3', 0)
+    context.options |= getattr(context, 'OP_NO_TLSv1_2', 0)
+    context.options |= getattr(context, 'OP_NO_TLSv1_1', 0)
 
     # URL de la API de Bard
     url = "https://api.bard.ai/v1/query"
