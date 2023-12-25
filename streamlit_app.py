@@ -1,31 +1,32 @@
-# Importar las bibliotecas necesarias
 import streamlit as st
-import yfinance as yf
+import requests
 
-# Configuración de la página de Streamlit
-st.title("Consulta de Precio Más Bajo en Guatemala")
-st.sidebar.header("Configuración")
+def obtener_precio_mas_bajo_producto(producto):
+    # Utiliza una API ficticia para obtener datos de productos y precios
+    url = f"https://api-ejemplo-precios.com/precio/{producto}"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        data = response.json()
+        min_price = min(data['precios'])
+        return min_price
+    else:
+        st.error(f"No se pudieron obtener datos para el producto {producto}")
+        return None
 
-# Obtener el símbolo de la acción desde el usuario
-symbol = st.sidebar.text_input("Ingrese el símbolo de la acción (por ejemplo, AAPL):", "AAPL")
+def main():
+    st.title("Precio más bajo de un producto en Guatemala")
+    
+    # Sidebar
+    st.sidebar.header("Configuración")
+    producto = st.sidebar.text_input("Ingrese el nombre del producto", "EjemploProducto")
+    
+    # Obtener el precio más bajo
+    min_price = obtener_precio_mas_bajo_producto(producto)
+    
+    # Mostrar resultados
+    if min_price is not None:
+        st.write(f"El precio más bajo para {producto} es: ${min_price:.2f}")
 
-# Obtener datos históricos de la acción
-st.sidebar.header("Parámetros de la Consulta")
-start_date = st.sidebar.date_input("Fecha de inicio:", pd.to_datetime("2022-01-01"))
-end_date = st.sidebar.date_input("Fecha de fin:", pd.to_datetime("2023-01-01"))
-
-# Descargar datos históricos
-data = yf.download(symbol, start=start_date, end=end_date)
-
-# Calcular el precio más bajo
-lowest_price = data["Low"].min()
-
-# Mostrar el gráfico de precios
-st.subheader(f"Gráfico de precios para {symbol}")
-st.line_chart(data["Close"])
-
-# Mostrar el precio más bajo
-st.subheader(f"Precio más bajo para {symbol}: {lowest_price}")
-
-# Información adicional
-st.sidebar.markdown("Datos obtenidos de Yahoo Finance.")
+if __name__ == "__main__":
+    main()
