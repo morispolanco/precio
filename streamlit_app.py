@@ -1,23 +1,27 @@
 import streamlit as st
-import requests
+import os
+import openai
 
-def get_best_price(product_name: str, location: str) -> str:
-    url = f"https://www.google.com/search?q={product_name}+price+in+{location}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"}
-    res = requests.get(url, headers=headers)
-    data = res.text
-    start = data.find("1.")
-    end = data.find("2.")
-    return data[start:end]
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-def app():
-    st.title("Encuentra el mejor precio de un producto en Guatemala")
-    product_name = st.text_input("Ingresa el nombre del producto")
-    location = st.text_input("Ingresa la ubicación")
-    if st.button("Buscar"):
-        result = get_best_price(product_name, location)
-        st.write(result)
+def generate_text(prompt):
+    completions = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=prompt,
+        max_tokens=1024,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
 
-if __name__ == "__main__":
-    app()
+    message = completions.choices[0].text
+    return message
+
+st.title("Buscador de Mejores Precios")
+product = st.text_input("Ingrese el producto a buscar")
+location = "Guatemala" 
+
+if st.button("Buscar"):
+    prompt = f"Encuentra el mejor precio en línea para un(a) {product} en {location} y provee el link para comprarlo"   
+    response = generate_text(prompt)
+    st.success(response)
