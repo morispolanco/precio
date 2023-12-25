@@ -26,7 +26,7 @@ def get_lowest_price(product_name):
 
     # Enviar la solicitud a la API
     try:
-        response = requests.get(url, params=params, verify=True, timeout=10, context=context)
+        response = requests.get(url, params=params, verify=False, timeout=10, context=context)
     except requests.exceptions.SSLError as e:
         st.error(f"Error de conexión SSL: {e}")
         return None
