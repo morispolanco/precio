@@ -4,6 +4,8 @@ import requests
 def obtener_precio_mas_bajo_producto(producto):
     # Utiliza una API ficticia para obtener datos de productos y precios
     url = f"https://api-ejemplo-precios.com/precio/{producto}"
+    print(f"Solicitando datos a la URL: {url}")
+    
     response = requests.get(url)
     
     if response.status_code == 200:
@@ -11,6 +13,7 @@ def obtener_precio_mas_bajo_producto(producto):
         min_price = min(data['precios'])
         return min_price
     else:
+        print(f"Error en la solicitud: {response.status_code}, {response.text}")
         st.error(f"No se pudieron obtener datos para el producto {producto}")
         return None
 
